@@ -3,18 +3,21 @@ From: nvcr.io/nvidia/cuda:11.3.0-devel-ubuntu18.04
 
 %post
     apt-get update
-    apt -y install python3 python3-pip cmake git emacs vim
+    apt -y install python3 python3-pip cmake git emacs vim wget
 
     ln -s /usr/bin/python3 /usr/bin/python
 
     pip3 install qulacs-gpu numpy matplotlib scikit-learn h5py pandas jupyterlab ipywidgets
-    pip3 cache purge
 
     NODEVERSION=v14.16.0
     wget https://nodejs.org/dist/${NODEVERSION}/node-${NODEVERSION}-linux-x64.tar.xz
     tar xf node-${NODEVERSION}-linux-x64.tar.xz
-    cp -r node-${NODEVERSION}-linux-x64/{bin,include,lib,share} /usr/local
-    rm -rf node-${NODEVERSION}-linux-x64{,.tar.xz}
+    rm node-${NODEVERSION}-linux-x64.tar.xz
+    cp -r node-${NODEVERSION}-linux-x64/bin /usr/local
+    cp -r node-${NODEVERSION}-linux-x64/lib /usr/local
+    cp -r node-${NODEVERSION}-linux-x64/include /usr/local
+    cp -r node-${NODEVERSION}-linux-x64/share /usr/local
+    rm -rf node-${NODEVERSION}-linux-x64
 
     jupyter labextension install @jupyterlab/celltags
 
