@@ -1,0 +1,20 @@
+Bootstrap: docker
+From: ubuntu:latest
+
+%post
+    apt -y update
+    apt -y upgrade
+
+    apt -yq install git wget
+
+    DEBIAN_FRONTEND=noninteractive apt -yq install texlive-lang-cjk xdvik-ja evince
+    DEBIAN_FRONTEND=noninteractive apt -yq install texlive-fonts-recommended texlive-fonts-extra texlive-publishers texlive-full
+
+    wget https://raw.githubusercontent.com/quantum-journal/quantum-journal/master/quantumarticle.cls && \
+      mkdir -p /usr/local/share/texmf/tex/latex/quantumarticle && \
+      mv quantumarticle.cls /usr/local/share/texmf/tex/latex/quantumarticle/ && \
+      texhash
+
+%environment
+    export LC_ALL=C
+    export PS1='[\u@\h \w]$'
