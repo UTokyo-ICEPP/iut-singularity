@@ -5,10 +5,11 @@ From: nvcr.io/nvidia/tensorflow:21.06-tf2-py3
     test_tensorflow.py /usr/local/bin
 
 %post
+    apt-get update
+    apt -y install python3-venv wget
+
     pip install --upgrade jupyterlab
-    pip install qiskit==0.27.0
-    pip install qiskit-aer-gpu==0.8.2
-    pip install numba matplotlib pylatexenc pennylane pennylane-qiskit ipywidgets
+    pip install matplotlib pylatexenc ipywidgets
     pip cache purge
 
     NODEVERSION=v14.17.3
@@ -32,6 +33,10 @@ From: nvcr.io/nvidia/tensorflow:21.06-tf2-py3
     jupyter lab build
 
     chmod +x /usr/local/bin/test_tensorflow.py
+
+    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+    bash Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda
+    rm -f Miniconda3-latest-Linux-x86_64.sh 
 
 %startscript
     jupyter lab --no-browser
