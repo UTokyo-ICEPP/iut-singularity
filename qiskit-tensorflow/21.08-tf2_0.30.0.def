@@ -1,0 +1,46 @@
+Bootstrap: docker
+From: nvcr.io/nvidia/tensorflow:21.08-tf2-py3
+
+%files
+    test_tensorflow.py /usr/local/bin
+
+%post
+    pip install --upgrade jupyterlab
+    pip install qiskit==0.30.0
+    pip install qiskit-aer-gpu==0.9.0
+    pip install numba matplotlib pylatexenc pennylane pennylane-qiskit ipywidgets
+    pip install cvxpy qutip
+    pip cache purge
+
+    NODEVERSION=v14.17.6
+    wget https://nodejs.org/dist/${NODEVERSION}/node-${NODEVERSION}-linux-x64.tar.xz
+    tar xf node-${NODEVERSION}-linux-x64.tar.xz
+    cp -r node-${NODEVERSION}-linux-x64/bin /usr/local
+    cp -r node-${NODEVERSION}-linux-x64/include /usr/local
+    cp -r node-${NODEVERSION}-linux-x64/lib /usr/local
+    cp -r node-${NODEVERSION}-linux-x64/share /usr/local
+    rm -rf node-${NODEVERSION}-linux-x64
+    rm -rf node-${NODEVERSION}-linux-x64.tar.xz
+
+    jupyter labextension uninstall jupyterlab_tensorboard
+
+    cd /usr/local/share/jupyter/labextensions
+    git clone -b v0.9.1-custom https://github.com/yiiyama/jupyterlab-emacskeys
+    cd jupyterlab-emacskeys
+    npm install
+    npm run build
+    jupyter labextension link .
+    jupyter lab build
+
+    chmod +x /usr/local/bin/test_tensorflow.py
+
+%startscript
+    jupyter lab --no-browser
+
+%runscript
+    /usr/local/bin/test_tensorflow.py    
+
+%environment
+    export CUDA_CACHE_DISABLE=0
+    export LC_ALL=C
+    export PS1='[\u@\h \w]$'
