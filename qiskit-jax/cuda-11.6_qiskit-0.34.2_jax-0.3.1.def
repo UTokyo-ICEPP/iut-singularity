@@ -10,11 +10,9 @@ From: nvcr.io/nvidia/cuda:11.6.0-devel-ubuntu20.04
 
     ln -s /usr/bin/python3 /usr/bin/python
 
-    pip3 install numpy scipy matplotlib scikit-learn h5py pandas jupyterlab pylatexenc ipywidgets
-    pip3 install numba cvxpy qutip
+    python3 -m pip install --upgrade pip
 
-    pip3 install "jax[cuda]==0.3.1" -f https://storage.googleapis.com/jax-releases/jax_releases.html
-    pip3 install optax==0.1.1
+    pip3 install jupyterlab
 
     pip3 install qiskit==0.34.2
     pip3 install qiskit-aer-gpu==0.10.3
@@ -22,7 +20,16 @@ From: nvcr.io/nvidia/cuda:11.6.0-devel-ubuntu20.04
     pip3 install qiskit-machine-learning==0.3.1
     pip3 install qiskit-metal==0.0.4
 
+    pip3 install "jax[cuda]==0.3.1" -f https://storage.googleapis.com/jax-releases/jax_releases.html
+    pip3 install optax==0.1.1
+
+    pip3 install matplotlib pylatexenc ipywidgets
+    pip3 install numba cvxpy scikit-learn
+    pip3 install h5py pandas
     pip3 install pennylane pennylane-qiskit
+    pip3 install qutip
+    pip3 install iminuit
+    pip3 cache purge
 
     NODEVERSION=v16.14.0
     wget https://nodejs.org/dist/${NODEVERSION}/node-${NODEVERSION}-linux-x64.tar.xz
