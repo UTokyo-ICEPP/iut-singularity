@@ -1,0 +1,13 @@
+Bootstrap: docker-daemon
+From: yiiyama/jupyterbook-qiskit-packages:1.0.13
+
+%post
+    pip3 install jupyterlab
+
+%environment
+    export CUDA_CACHE_DISABLE=0
+    export LC_ALL=C
+    export PS1='[\u@\h \w]$'
+
+%startscript
+    jupyter lab --no-browser
