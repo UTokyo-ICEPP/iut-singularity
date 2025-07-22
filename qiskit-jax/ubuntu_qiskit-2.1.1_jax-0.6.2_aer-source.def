@@ -1,0 +1,83 @@
+Bootstrap: docker
+From: nvidia/cuda:12.8.1-cudnn-devel-ubuntu24.04
+Stage: build
+
+%post -c /bin/bash
+    apt update || true
+    DEBIAN_FRONTEND=noninteractive apt -y install python3 python3-venv python3-pybind11 git build-essential libopenblas-dev
+    apt clean
+
+    cd /root
+    python3 -m venv aerbuild
+    source aerbuild/bin/activate
+
+    git clone https://github.com/Qiskit/qiskit-aer
+    cd qiskit-aer
+    git checkout 0.17.1
+    pip install -r requirements-dev.txt
+    python ./setup.py bdist_wheel -- -DAER_THRUST_BACKEND=CUDA -- -j32
+    
+
+Bootstrap: docker
+From: ubuntu:24.04
+
+%files
+    test_jax.py /usr/local/bin
+
+%files from build
+    /root/qiskit-aer/dist/qiskit_aer-0.17.1-cp312-cp312-linux_x86_64.whl /root
+
+%post -c /bin/bash
+    apt update || true
+    DEBIAN_FRONTEND=noninteractive apt -y install python3 python3-venv cmake git emacs vim wget libopenblas-dev
+    apt clean
+
+    # "apt install python3-pip" provides an old version and is not upgradable
+    wget https://bootstrap.pypa.io/get-pip.py
+    python3 get-pip.py --prefix /usr
+    rm get-pip.py
+
+    pip3 install --prefix /usr --upgrade pip
+
+    pip3 install --prefix /usr \
+             jupyterlab jupytext ipywidgets \
+             numba lmfit scikit-learn cvxpy iminuit \
+             matplotlib pylatexenc pydot graphviz \
+             h5py pandas \
+             sphinx-autodoc-typehints sphinx-rtd-theme \
+             python-dotenv pipdeptree \
+             build twine
+
+    pip3 install --prefix /usr \
+             qiskit==2.1.1 \
+             qiskit-dynamics qiskit-nature qiskit-optimization qiskit-experiments qiskit-machine-learning \
+             qiskit-ibm-runtime quantum-serverless
+    pip3 install --prefix /usr -U /root/qiskit_aer-0.17.1-cp312-cp312-linux_x86_64.whl
+             
+    pip3 install --prefix /usr \
+             "jax[cuda12]==0.6.2" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+
+    pip3 install --prefix /usr \
+             pennylane \
+             physics-tenpy pyscf pymatching \
+             pytket pytket-quantinuum pytket-qiskit==0.71.0 \
+             optax jaxopt qujax flax \
+             qulacs qutip quspin
+             # pennylane-qiskit
+
+    pip3 cache purge
+    rm /root/qiskit_aer-0.17.1-cp312-cp312-linux_x86_64.whl
+
+    chmod +x /usr/local/bin/test_jax.py
+
+%environment
+    export CUDA_CACHE_DISABLE=0
+    export LC_ALL=C
+    export PS1='[\u@\h \w]$'
+    export PATH="/opt/python3/bin:$PATH"
+
+%startscript
+    jupyter lab --no-browser
+
+%runscript
+    /usr/local/bin/test_jax.py

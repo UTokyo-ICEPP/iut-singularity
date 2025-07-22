@@ -1,0 +1,64 @@
+Bootstrap: docker
+From: ubuntu:22.04
+
+%files
+    test_jax.py /usr/local/bin
+
+%post
+    apt-get update || true
+    DEBIAN_FRONTEND=noninteractive apt -y install python3 python3-pip python3-venv cmake git emacs vim wget graphviz
+
+    ln -s /usr/bin/python3 /usr/bin/python
+
+    python3 -m pip install --upgrade pip
+
+    pip3 install jupyterlab
+    pip3 install jupytext
+
+    pip3 install -U "jax[cuda12_pip]==0.4.21" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+    pip3 install optax==0.1.7
+    pip3 install jaxopt==0.8.2
+    pip3 install qujax==1.1.0
+
+    pip3 install qiskit-ibm-provider==0.7.2
+    pip3 install lmfit==1.2.2
+    pip3 install qiskit-ibm-experiment==0.3.5
+    pip3 install qiskit==0.45.1
+    pip3 install qiskit-aer==0.13.1
+    pip3 install qiskit-experiments==0.5.4
+    pip3 install qiskit-dynamics==0.4.2
+    pip3 install qiskit-nature==0.7.1
+    pip3 install qiskit-finance==0.4.0
+    pip3 install qiskit-optimization==0.6.0
+    pip3 install qiskit-machine-learning==0.7.1
+    pip3 install qiskit-metal==0.1.5
+    pip3 install qiskit-ibm-runtime==0.20.0
+    pip3 install quantum-serverless==0.8.1
+
+    pip3 install matplotlib pylatexenc ipywidgets pydot
+    pip3 install numba cvxpy scikit-learn
+    pip3 install h5py pandas
+    pip3 install pennylane pennylane-qiskit
+    pip3 install qulacs
+    pip3 install qutip
+    pip3 install iminuit
+    pip3 install python-dotenv
+
+    pip3 install sphinx-autodoc-typehints
+
+    pip3 install build twine
+
+    pip3 cache purge
+
+    chmod +x /usr/local/bin/test_jax.py
+
+%environment
+    export CUDA_CACHE_DISABLE=0
+    export LC_ALL=C
+    export PS1='[\u@\h \w]$'
+
+%startscript
+    jupyter lab --no-browser
+
+%runscript
+    /usr/local/bin/test_jax.py

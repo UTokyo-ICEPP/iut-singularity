@@ -1,0 +1,73 @@
+#!/bin/bash
+
+function usage() {
+  echo "Usage: uppdflatex.sh [OPTIONS] TEXFILE"
+  echo "OPTIONS:"
+  echo "  -B,--bib: Run upbibtex"
+  echo "  -b,--bibopt: Options (as a quoted string) passed to upbibtex"
+  echo "  -Q,--quick: Only do a single pass of uplatex"
+  echo "  -o,--opt: Options (as a quoted string) passed to uplatex"
+}
+
+options=$(getopt -o b:BQo: --long bibopt:,bib,opt:,quick -- "$@")
+rc=$?
+if [ $rc -ne 0 ] then
+  usage
+  exit $rc
+fi
+
+eval set -- "$options"
+
+while true
+do
+  case "$1" in
+  -b|--bibopt)
+    BIBOPT="$2"
+    shift
+    ;;
+  -B|--bib)
+    BIBTEX=true
+    shift
+    ;;
+  -c|--quick)
+    QUICK=true
+    ;;    
+  -o|--opt)
+    OPTIONS="$2"
+    shift
+    ;;
+  --)
+    shift
+    break
+    ;;
+  esac
+  shift
+done
+
+if [ $# -ne 1 ]
+then
+  echo "Need a .tex file to process"
+  usage
+  exit 2
+fi
+
+SRC=$1
+
+SRCDIR=$(dirname $1)
+SRC=$(basename $SRC)
+
+cd $SRCDIR
+uplatex $SRC
+
+if [ $QUICK = true ]
+then
+  
+
+#
+#
+#cd 
+#
+#uplatex $@
+#uplatex $@
+#uplatex $@
+#dvipdfmx kumo.dvi
