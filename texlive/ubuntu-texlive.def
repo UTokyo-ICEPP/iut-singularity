@@ -5,10 +5,19 @@ From: ubuntu:latest
     apt -y update
     apt -y upgrade
 
-    apt -yq install git wget
+    apt -yq install git wget perl
 
-    DEBIAN_FRONTEND=noninteractive apt -yq install texlive-lang-cjk xdvik-ja evince
-    DEBIAN_FRONTEND=noninteractive apt -yq install texlive-fonts-recommended texlive-fonts-extra texlive-publishers texlive-full
+    wget https://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
+    zcat < install-tl-unx.tar.gz | tar xf -
+    rm install-tl-unx.tar.gz
+    cd install-tl-*
+    perl ./install-tl --no-interaction
+    cd /usr/local/texlive/*/bin/x86_64-linux
+    ls | while read cmd; do ln -sf $(pwd)/$cmd /usr/local/bin/$cmd; done
+    cd -
+    rm -rf install-tl-*
+
+    DEBIAN_FRONTEND=noninteractive apt -yq install xdvik-ja evince
 
     wget https://raw.githubusercontent.com/quantum-journal/quantum-journal/master/quantumarticle.cls && \
       mkdir -p /usr/local/share/texmf/tex/latex/quantumarticle && \
