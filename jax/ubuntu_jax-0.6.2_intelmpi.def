@@ -1,0 +1,55 @@
+Bootstrap: docker
+From: ubuntu:24.04
+
+%files
+    test_jax.py /usr/local/bin
+
+%post -c /bin/bash
+    apt update || true
+    DEBIAN_FRONTEND=noninteractive apt -y install \
+            wget gnupg gpg-agent \
+            python3 python3-venv cmake git emacs vim wget gnupg gpg-agent
+            #openmpi-bin libopenmpi-dev
+    wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+    gpg --dearmor -o /usr/share/keyrings/oneapi-archive-keyring.gpg GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB && rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+    echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" \
+        > /etc/apt/sources.list.d/oneAPI.list
+    apt update || true
+    apt -y install intel-oneapi-mpi-devel
+    apt clean
+
+    # "apt install python3-pip" provides an old version and is not upgradable
+    wget https://bootstrap.pypa.io/get-pip.py
+    python3 get-pip.py --prefix /usr
+    rm get-pip.py
+
+    pip3 install --prefix /usr --upgrade pip
+
+    pip3 install --prefix /usr \
+             mpi4py impi-rt
+
+    pip3 install --prefix /usr \
+             jupyterlab jupytext ipywidgets \
+             numba cvxpy iminuit \
+             matplotlib pylatexenc pydot graphviz \
+             h5py pandas \
+             python-dotenv pipdeptree
+
+    pip3 install --prefix /usr \
+             "jax[cuda12]==0.6.2" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+
+    pip3 install --prefix /usr \
+             optax jaxopt qujax flax
+
+    pip3 cache purge
+
+    chmod +x /usr/local/bin/test_jax.py
+
+%environment
+    export CUDA_CACHE_DISABLE=0
+    export LC_ALL=C
+    export PS1='[\u@\h \w]$'
+#    . /opt/intel/oneapi/mpi/latest/env/vars.sh
+
+%runscript
+    /usr/local/bin/test_jax.py
